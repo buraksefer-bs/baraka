@@ -471,6 +471,30 @@ async function initApp() {
     .eq('auth_id', session.user.id)
     .single();
   currentMember = member;
+// Onay bekleyen üye giriş yaparsa bilgilendirin
+if (member && member.status === 'pending') {
+  await sb.auth.signOut();
+  document.body.innerHTML = `
+  <div style="min-height:100vh;background:#FBF8F3;display:flex;align-items:center;
+              justify-content:center;padding:20px">
+    <div style="background:white;border-radius:20px;padding:40px 32px;width:100%;
+                max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.1);text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">⏳</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:20px;margin-bottom:12px">
+        Onay Bekleniyor</h2>
+      <p style="color:#888;font-size:14px;line-height:1.6">
+        Kaydınız alındı.<br>Ağa veya Maraba hesabınızı<br>
+        onayladıktan sonra giriş yapabilirsiniz.</p>
+      <button onclick="showLoginScreen()"
+        style="margin-top:24px;background:#C0392B;color:white;border:none;
+               padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;
+               cursor:pointer;font-family:'Nunito',sans-serif">
+        Tamam
+      </button>
+    </div>
+  </div>`;
+  return;
+}
   // Sidebar'ı güncelle
 if (member) {
   var nameEl = document.querySelector('.sb-uname');
@@ -1117,15 +1141,44 @@ function toggleAttended(id, val) {
 }
 
 function addMedia(id) {
-  var e = getEvById(id);
-  if (!e) return;
-  if (!e.media) e.media = [];
-  if (e.media.length >= 5) { showToast('En fazla 5 medya yukleyebilirsiniz'); return; }
-  var types = [['📸','Fotoğraf ' + (e.media.length+1),'photo'],['🎬','Video ' + (e.media.length+1),'video']];
-  var pick = types[Math.floor(Math.random() * types.length)];
-  e.media.push({t:pick[2], ic:pick[0], n:pick[1]});
-  openEvDetail(id);
-  showToast(pick[0] + ' yuklendi ✓');
+  // Gizli file input oluştur
+  var input = document.createElement('input');
+  input.type = 'file';
+  input.accept = 'image/*,video/*';
+  input.multiple = true;
+
+  input.onchange = async function() {
+    var files = Array.from(input.files);
+    var e = getEvById(id);
+    if (!e) return;
+    if (!e.media) e.media = [];
+
+    var remaining = 5 - e.media.length;
+    if (files.length > remaining) {
+      showToast('En fazla ' + remaining + ' dosya daha yükleyebilirsiniz');
+      files = files.slice(0, remaining);
+    }
+
+    showToast('Yükleniyor...');
+
+    for (var i = 0; i < files.length; i++) {
+      var url = await uploadMedia(files[i], id);
+      if (url) {
+        var isVideo = files[i].type.startsWith('video');
+        e.media.push({
+          t: isVideo ? 'video' : 'photo',
+          ic: isVideo ? '🎬' : '📸',
+          n: files[i].name,
+          url: url
+        });
+      }
+    }
+
+    showToast(files.length + ' dosya yüklendi ✓');
+    openEvDetail(id);
+  };
+
+  input.click();
 }
 
 function delMedia(id, idx) {
@@ -2068,16 +2121,39 @@ function openCreateEvent() {
   showModal();
 }
 function openInvite() {
+  var link = window.location.origin + window.location.pathname;
   document.getElementById('mcon').innerHTML =
     '<div class="mtitle">✉ Davet Et</div>' +
-    '<div class="fg"><label class="fl">Ad</label><input class="fi" id="inv_first" placeholder="Ad" oninput="checkInvName()"></div>' +
-    '<div class="fg"><label class="fl">Soyad</label><input class="fi" id="inv_last" placeholder="Soyad" oninput="checkInvName()"></div>' +
-    '<div id="inv_warning" class="inv-warning">⚠️ Bu isimde kayitli bir uye zaten var. Lutfen kontrol edin.</div>' +
-    '<div class="fg" style="margin-top:12px"><label class="fl">Telefon (WhatsApp)</label><input class="fi" id="inv_phone" placeholder="+90 5xx xxx xx xx" type="tel"></div>' +
-    '<div style="background:var(--cream);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:var(--muted);line-height:1.5" id="inv_preview">Ad ve telefon girdikten sonra davet mesaji onizlemesi burada gorunecek.</div>' +
-    '<button class="wa-big" onclick="sendWhatsApp()">📲 WhatsApp ile Davet Gönder</button>' +
-    '<button class="copy-btn" onclick="copyInvLink()">🔗 Davet Linkini Kopyala</button>';
+    '<div style="background:var(--cream);border-radius:12px;padding:14px;' +
+    'font-size:13px;color:var(--muted);margin-bottom:16px;word-break:break-all">' +
+    '🔗 ' + link + '</div>' +
+    '<button class="wa-big" style="width:100%;justify-content:center" ' +
+    'onclick="shareViaWhatsApp()">' +
+    '📲 WhatsApp\'ta Paylaş</button>' +
+    '<button class="copy-btn" onclick="copyInvLink()">🔗 Linki Kopyala</button>' +
+    '<p style="font-size:12px;color:var(--muted);margin-top:14px;text-align:center">' +
+    'Kişi bu linkten kayıt olur, siz Yönetim Paneli\'nden onaylarsınız.</p>';
   showModal();
+}
+
+function shareViaWhatsApp() {
+  var link = window.location.origin + window.location.pathname;
+  var msg = 'Merhaba! Seni THBT Fosilleri\'nin Baraka platformuna davet ediyorum. ' +
+            'Buradan kayıt olabilirsin: ' + link;
+  window.open('https://wa.me/?text=' + encodeURIComponent(msg), '_blank');
+}
+
+function copyInvLink() {
+  var link = window.location.origin + window.location.pathname;
+  var msg = 'Merhaba! Seni THBT Fosilleri\'nin Baraka platformuna davet ediyorum. ' +
+            'Buradan kayıt olabilirsin: ' + link;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(msg).then(function() {
+      showToast('Davet mesajı kopyalandı ✓');
+    });
+  } else {
+    showToast('Davet mesajı kopyalandı ✓');
+  }
 }
 
 function checkInvName() {
@@ -2255,6 +2331,46 @@ async function saveProfileToDb(data) {
     enstru: data.enstru, birimler: data.aktifBirimler
   }).eq('id', currentMember.id);
 }
+async function uploadMedia(file, eventId) {
+  if (!currentMember) return null;
+
+  // Dosya boyutu kontrolü (max 50MB)
+  if (file.size > 50 * 1024 * 1024) {
+    showToast('Dosya 50MB\'dan büyük olamaz');
+    return null;
+  }
+
+  // Benzersiz dosya adı oluştur
+  var ext = file.name.split('.').pop();
+  var path = currentMember.id + '/' + eventId + '/' + Date.now() + '.' + ext;
+
+  // Supabase Storage'a yükle
+  var { data, error } = await sb.storage
+    .from('event-media')
+    .upload(path, file, { upsert: false });
+
+  if (error) {
+    showToast('Yükleme hatası: ' + error.message);
+    return null;
+  }
+
+  // Public URL al
+  var { data: urlData } = sb.storage
+    .from('event-media')
+    .getPublicUrl(path);
+
+  // Veritabanına kaydet
+  var mediaType = file.type.startsWith('video') ? 'video' : 'photo';
+  await sb.from('event_media').insert({
+    event_id: eventId,
+    uploaded_by: currentMember.id,
+    url: urlData.publicUrl,
+    media_type: mediaType,
+    name: file.name
+  });
+
+  return urlData.publicUrl;
+}
 async function doLogout() {
   await sb.auth.signOut();
   location.reload();
@@ -2286,9 +2402,10 @@ function showLoginScreen() {
         style="width:100%;background:#C0392B;color:white;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">
         Giriş Yap
       </button>
-      <p style="text-align:center;font-size:12px;color:#888;margin-top:16px">
-        Hesabınız yok mu? Ağa veya Maraba sizi davet edecektir.
-      </p>
+      '<p style="text-align:center;font-size:12px;color:#888;margin-top:16px">' +
+'Hesabınız yok mu? ' +
+'<span onclick="showRegisterScreen()" style="color:#C0392B;cursor:pointer;font-weight:700">Kayıt Olun</span>' +
+'</p>'
     </div>
   </div>`;
 }
@@ -2313,6 +2430,159 @@ async function doLogin() {
   } else {
     location.reload();
   }
+}
+function showRegisterScreen() {
+  document.body.innerHTML = `
+  <div style="min-height:100vh;background:#FBF8F3;display:flex;align-items:center;
+              justify-content:center;padding:20px;overflow-y:auto">
+    <div style="background:white;border-radius:20px;padding:36px 32px;width:100%;
+                max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.1);margin:20px 0">
+
+      <div style="text-align:center;margin-bottom:24px">
+        <h1 style="font-family:'Playfair Display',serif;font-size:26px;
+                   font-weight:700;color:#1C1C1C">Baraka'ya Katıl</h1>
+        <p style="font-size:13px;color:#888;margin-top:4px">
+          ODTÜ THBT Fosilleri · Kayıt Formu</p>
+      </div>
+
+      <div id="regMsg" style="display:none;padding:10px 14px;border-radius:10px;
+                              font-size:13px;margin-bottom:12px"></div>
+
+      <!-- Temel bilgiler -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><label class="fl">Ad</label>
+          <input class="fi" id="reg_first" placeholder="Adınız"></div>
+        <div class="fg"><label class="fl">Soyad</label>
+          <input class="fi" id="reg_last" placeholder="Soyadınız"></div>
+      </div>
+      <div class="fg"><label class="fl">E-posta</label>
+        <input class="fi" id="reg_email" type="email"
+               placeholder="ornek@metu.edu.tr"></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><label class="fl">Şifre</label>
+          <input class="fi" id="reg_pass" type="password"
+                 placeholder="En az 6 karakter"></div>
+        <div class="fg"><label class="fl">Üye Türü</label>
+          <select class="fs" id="reg_type">
+            <option>Fosil</option>
+            <option>Çaylak</option>
+          </select></div>
+      </div>
+
+      <!-- THBT bilgileri -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><label class="fl">THBT Girişi</label>
+          <input class="fi" id="reg_entry" type="month"></div>
+        <div class="fg"><label class="fl">ODTÜ Mezuniyet</label>
+          <input class="fi" id="reg_grad" type="month"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="fg"><label class="fl">Bölüm</label>
+          <input class="fi" id="reg_dept"
+                 placeholder="Bilgisayar Müh."></div>
+        <div class="fg"><label class="fl">Şehir</label>
+          <input class="fi" id="reg_city"
+                 placeholder="Ankara"></div>
+      </div>
+
+      <button onclick="doRegister()"
+        style="width:100%;background:#C0392B;color:white;border:none;
+               padding:13px;border-radius:12px;font-size:14px;font-weight:700;
+               cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px">
+        Kayıt Ol — Onay Bekleyeceğim
+      </button>
+      <p style="text-align:center;font-size:12px;color:#888;margin-top:14px">
+        Kaydınız Ağa veya Maraba onayından sonra aktif olur.
+      </p>
+      <p style="text-align:center;margin-top:10px">
+        <span onclick="showLoginScreen()" style="font-size:12px;color:#C0392B;
+              cursor:pointer;font-weight:700">← Giriş ekranına dön</span>
+      </p>
+    </div>
+  </div>`;
+}
+
+async function doRegister() {
+  var first = (document.getElementById('reg_first').value || '').trim();
+  var last  = (document.getElementById('reg_last').value  || '').trim();
+  var email = (document.getElementById('reg_email').value || '').trim();
+  var pass  = document.getElementById('reg_pass').value;
+  var type  = document.getElementById('reg_type').value;
+  var entry = document.getElementById('reg_entry').value;
+  var grad  = document.getElementById('reg_grad').value;
+  var dept  = (document.getElementById('reg_dept').value || '').trim();
+  var city  = (document.getElementById('reg_city').value || '').trim();
+  var msg   = document.getElementById('regMsg');
+
+  function showMsg(text, ok) {
+    msg.style.display = 'block';
+    msg.style.background = ok ? '#EAFAF1' : '#FDEDEC';
+    msg.style.color = ok ? '#1E8449' : '#C0392B';
+    msg.textContent = text;
+  }
+
+  if (!first || !last || !email || !pass) {
+    showMsg('Ad, soyad, e-posta ve şifre zorunludur.', false);
+    return;
+  }
+  if (pass.length < 6) {
+    showMsg('Şifre en az 6 karakter olmalıdır.', false);
+    return;
+  }
+
+  // 1. Supabase Auth'a kayıt
+  var { data: authData, error: authErr } = await sb.auth.signUp({
+    email: email,
+    password: pass,
+    options: { data: { name: first + ' ' + last } }
+  });
+
+  if (authErr) {
+    showMsg('Kayıt hatası: ' + authErr.message, false);
+    return;
+  }
+
+  // 2. Members tablosuna pending olarak ekle
+  var { error: dbErr } = await sb.from('members').insert({
+    auth_id: authData.user.id,
+    name: first + ' ' + last,
+    email: email,
+    member_type: type,
+    thbt_entry: entry || null,
+    odtu_grad: grad || null,
+    dept: dept || null,
+    city: city || null,
+    country: 'Türkiye',
+    status: 'pending',
+    app_role: 'member'
+  });
+
+  if (dbErr) {
+    showMsg('Profil kaydı hatası: ' + dbErr.message, false);
+    return;
+  }
+
+  // 3. Başarı mesajı
+  document.body.innerHTML = `
+  <div style="min-height:100vh;background:#FBF8F3;display:flex;align-items:center;
+              justify-content:center;padding:20px">
+    <div style="background:white;border-radius:20px;padding:40px 32px;width:100%;
+                max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.1);text-align:center">
+      <div style="font-size:56px;margin-bottom:16px">✅</div>
+      <h2 style="font-family:'Playfair Display',serif;font-size:22px;margin-bottom:12px">
+        Kayıt Alındı!</h2>
+      <p style="color:#888;font-size:14px;line-height:1.6">
+        Merhaba <strong>${first}</strong>,<br>kaydınız alındı.<br><br>
+        Ağa veya Maraba hesabınızı onayladıktan sonra<br>
+        giriş yapabileceksiniz.</p>
+      <button onclick="showLoginScreen()"
+        style="margin-top:24px;background:#C0392B;color:white;border:none;
+               padding:12px 28px;border-radius:12px;font-size:14px;font-weight:700;
+               cursor:pointer;font-family:'Nunito',sans-serif">
+        Giriş Ekranına Dön
+      </button>
+    </div>
+  </div>`;
 }
 // Uygulamayı başlat
 initApp();
