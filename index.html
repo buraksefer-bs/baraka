@@ -458,6 +458,12 @@ let currentUser = null;
 let currentMember = null;
 
 async function initApp() {
+  // Şifre sıfırlama linki kontrolü
+  var hash = window.location.hash;
+  if (hash && hash.includes('type=recovery')) {
+    showNewPasswordScreen();
+    return;
+  }
   const { data: { session } } = await sb.auth.getSession();
   if (!session) {
     showLoginScreen();
@@ -2466,6 +2472,13 @@ function showLoginScreen() {
           'cursor:pointer;font-family:\'Nunito\',sans-serif;' +
         '">Giriş Yap</button>' +
 
+        /* Şifremi unuttum linki */
+        '<p style="text-align:right;margin:-10px 0 16px">' +
+          '<span onclick="showForgotScreen()" style="' +
+            'font-size:12px;color:#888;cursor:pointer;' +
+          '">Şifremi Unuttum</span>' +
+        '</p>' +
+
         /* Kayıt ol linki */
         '<p style="text-align:center;font-size:13px;color:#888;margin-top:18px;margin-bottom:0">' +
           'Hesabınız yok mu? ' +
@@ -2497,6 +2510,160 @@ async function doLogin() {
     msg.textContent = 'Giriş başarısız: ' + error.message;
   } else {
     location.reload();
+  }
+}
+function showForgotScreen() {
+  document.body.style.cssText = 'margin:0;padding:0;font-family:Nunito,sans-serif;';
+  document.body.innerHTML =
+    '<div style="position:fixed;inset:0;background:#FBF8F3;display:flex;' +
+    'flex-direction:column;align-items:center;justify-content:center;' +
+    'padding:20px;box-sizing:border-box">' +
+      '<div style="background:white;border-radius:20px;padding:36px 32px;' +
+      'width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.1);' +
+      'box-sizing:border-box">' +
+
+        '<div style="text-align:center;margin-bottom:24px">' +
+          '<div style="font-size:40px;margin-bottom:12px">🔑</div>' +
+          '<h2 style="font-family:\'Playfair Display\',serif;font-size:22px;' +
+          'font-weight:700;margin:0 0 6px">Şifremi Unuttum</h2>' +
+          '<p style="font-size:13px;color:#888;margin:0">E-posta adresinize ' +
+          'şifre sıfırlama bağlantısı göndereceğiz.</p>' +
+        '</div>' +
+
+        '<div id="forgotMsg" style="display:none;padding:10px 14px;' +
+        'border-radius:10px;font-size:13px;margin-bottom:12px"></div>' +
+
+        '<div style="margin-bottom:20px">' +
+          '<label style="font-size:11px;font-weight:700;color:#888;' +
+          'text-transform:uppercase;letter-spacing:.5px;display:block;' +
+          'margin-bottom:6px">E-posta</label>' +
+          '<input id="forgotEmail" type="email" placeholder="ornek@metu.edu.tr" ' +
+          'style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+          'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;' +
+          'outline:none;box-sizing:border-box;background:#FBF8F3;" ' +
+          'onkeydown="if(event.key===\'Enter\')doForgot()">' +
+        '</div>' +
+
+        '<button onclick="doForgot()" style="width:100%;background:#C0392B;' +
+        'color:white;border:none;padding:13px;border-radius:12px;font-size:15px;' +
+        'font-weight:700;cursor:pointer;font-family:\'Nunito\',sans-serif;">' +
+        'Bağlantı Gönder</button>' +
+
+        '<p style="text-align:center;margin-top:16px;margin-bottom:0">' +
+          '<span onclick="showLoginScreen()" style="font-size:13px;' +
+          'color:#C0392B;cursor:pointer;font-weight:700">← Giriş ekranına dön' +
+          '</span>' +
+        '</p>' +
+
+      '</div>' +
+    '</div>';
+}
+
+async function doForgot() {
+  var email = (document.getElementById('forgotEmail').value || '').trim();
+  var msg = document.getElementById('forgotMsg');
+
+  function showMsg(text, ok) {
+    msg.style.display = 'block';
+    msg.style.background = ok ? '#EAFAF1' : '#FDEDEC';
+    msg.style.color = ok ? '#1E8449' : '#C0392B';
+    msg.textContent = text;
+  }
+
+  if (!email) { showMsg('E-posta adresi gereklidir.', false); return; }
+
+  var { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + window.location.pathname
+  });
+
+  if (error) {
+    showMsg('Hata: ' + error.message, false);
+  } else {
+    msg.style.display = 'block';
+    msg.style.background = '#EAFAF1';
+    msg.style.color = '#1E8449';
+    msg.innerHTML = '✓ <strong>' + email + '</strong> adresine bağlantı gönderildi. ' +
+                    'Gelen kutunuzu kontrol edin.';
+    document.getElementById('forgotEmail').disabled = true;
+    document.querySelector('button[onclick="doForgot()"]').disabled = true;
+  }
+}
+function showNewPasswordScreen() {
+  document.body.style.cssText = 'margin:0;padding:0;font-family:Nunito,sans-serif;';
+  document.body.innerHTML =
+    '<div style="position:fixed;inset:0;background:#FBF8F3;display:flex;' +
+    'flex-direction:column;align-items:center;justify-content:center;' +
+    'padding:20px;box-sizing:border-box">' +
+      '<div style="background:white;border-radius:20px;padding:36px 32px;' +
+      'width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.1);' +
+      'box-sizing:border-box">' +
+
+        '<div style="text-align:center;margin-bottom:24px">' +
+          '<div style="font-size:40px;margin-bottom:12px">🔐</div>' +
+          '<h2 style="font-family:\'Playfair Display\',serif;font-size:22px;' +
+          'font-weight:700;margin:0 0 6px">Yeni Şifre Belirle</h2>' +
+          '<p style="font-size:13px;color:#888;margin:0">' +
+          'Lütfen yeni şifrenizi girin.</p>' +
+        '</div>' +
+
+        '<div id="newPassMsg" style="display:none;padding:10px 14px;' +
+        'border-radius:10px;font-size:13px;margin-bottom:12px"></div>' +
+
+        '<div style="margin-bottom:14px">' +
+          '<label style="font-size:11px;font-weight:700;color:#888;' +
+          'text-transform:uppercase;letter-spacing:.5px;display:block;' +
+          'margin-bottom:6px">Yeni Şifre</label>' +
+          '<input id="newPass1" type="password" placeholder="En az 6 karakter" ' +
+          'style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+          'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;' +
+          'outline:none;box-sizing:border-box;background:#FBF8F3;">' +
+        '</div>' +
+
+        '<div style="margin-bottom:22px">' +
+          '<label style="font-size:11px;font-weight:700;color:#888;' +
+          'text-transform:uppercase;letter-spacing:.5px;display:block;' +
+          'margin-bottom:6px">Şifre Tekrar</label>' +
+          '<input id="newPass2" type="password" placeholder="Şifreyi tekrar girin" ' +
+          'style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+          'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;' +
+          'outline:none;box-sizing:border-box;background:#FBF8F3;">' +
+        '</div>' +
+
+        '<button onclick="doSetNewPassword()" style="width:100%;' +
+        'background:#C0392B;color:white;border:none;padding:13px;' +
+        'border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;' +
+        'font-family:\'Nunito\',sans-serif;">Şifremi Güncelle</button>' +
+
+      '</div>' +
+    '</div>';
+}
+
+async function doSetNewPassword() {
+  var p1 = document.getElementById('newPass1').value;
+  var p2 = document.getElementById('newPass2').value;
+  var msg = document.getElementById('newPassMsg');
+
+  function showMsg(text, ok) {
+    msg.style.display = 'block';
+    msg.style.background = ok ? '#EAFAF1' : '#FDEDEC';
+    msg.style.color = ok ? '#1E8449' : '#C0392B';
+    msg.textContent = text;
+  }
+
+  if (!p1 || !p2) { showMsg('Her iki alanı da doldurun.', false); return; }
+  if (p1.length < 6) { showMsg('Şifre en az 6 karakter olmalıdır.', false); return; }
+  if (p1 !== p2) { showMsg('Şifreler eşleşmiyor.', false); return; }
+
+  var { error } = await sb.auth.updateUser({ password: p1 });
+
+  if (error) {
+    showMsg('Hata: ' + error.message, false);
+  } else {
+    showMsg('✓ Şifreniz güncellendi! Yönlendiriliyorsunuz...', true);
+    setTimeout(function() {
+      window.location.hash = '';
+      location.reload();
+    }, 2000);
   }
 }
 function showRegisterScreen() {
