@@ -2492,9 +2492,10 @@ function showLoginScreen() {
 }
 
 async function doLogin() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const msg = document.getElementById('loginMsg');
+  var email = document.getElementById('loginEmail').value.trim();
+  var pass = document.getElementById('loginPass').value;
+  var msg = document.getElementById('loginMsg');
+
   if (!email || !pass) {
     msg.style.display = 'block';
     msg.style.background = '#FEF9E7';
@@ -2502,7 +2503,12 @@ async function doLogin() {
     msg.textContent = 'E-posta ve şifre gereklidir.';
     return;
   }
-  const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+
+  var { error } = await sb.auth.signInWithPassword({
+    email: email,
+    password: pass
+  });
+
   if (error) {
     msg.style.display = 'block';
     msg.style.background = '#FDEDEC';
