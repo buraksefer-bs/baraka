@@ -513,6 +513,7 @@ if (member) {
   await loadData();
   go('dashboard');
 }
+var LOGO_SRC = 'https://cmejnzsktvebxnkdcdea.supabase.co/storage/v1/object/public/documents/THBT_mezun_logo.png';
 var isAdmin = true;
 var curPage = 'dashboard';
 var cIdx = 0;
@@ -2379,33 +2380,98 @@ async function doLogout() {
 document.getElementById('pendingBadge').style.display = '';
 window.addEventListener('resize', function() { if (curPage === 'profile') pgProfile(); });
 function showLoginScreen() {
-  document.body.innerHTML = `
-  <div style="min-height:100vh;background:#FBF8F3;display:flex;align-items:center;justify-content:center;padding:20px">
-    <div style="background:white;border-radius:20px;padding:36px 32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,0.1)">
-      <div style="text-align:center;margin-bottom:28px">
-        <img src="DATA_THBT_LOGO_BURAYA" style="width:72px;height:72px;border-radius:50%;margin-bottom:14px">
-        <h1 style="font-family:'Playfair Display',serif;font-size:28px;font-weight:700;color:#1C1C1C">Baraka</h1>
-        <p style="font-size:13px;color:#888;margin-top:4px">ODTÜ THBT Fosilleri</p>
-      </div>
-      <div id="loginMsg" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:12px"></div>
-      <div style="margin-bottom:14px">
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">E-posta</label>
-        <input id="loginEmail" type="email" placeholder="ornek@metu.edu.tr"
-          style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;padding:10px 14px;font-size:14px;font-family:'Nunito',sans-serif;outline:none">
-      </div>
-      <div style="margin-bottom:20px">
-        <label style="font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Şifre</label>
-        <input id="loginPass" type="password" placeholder="••••••••"
-          style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;padding:10px 14px;font-size:14px;font-family:'Nunito',sans-serif;outline:none">
-      </div>
-      <button onclick="doLogin()"
-        style="width:100%;background:#C0392B;color:white;border:none;padding:13px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Nunito',sans-serif">
-        Giriş Yap
-      </button>
-      <p style="text-align:center;font-size:12px;color:#888;margin-top:16px">Hesabınız yok mu?<span onclick="showRegisterScreen()" style="color:#C0392B;cursor:pointer;font-weight:700">Kayıt Olun</span>
-      </p>
-    </div>
-  </div>`;
+  document.body.innerHTML =
+    '<div style="' +
+      'min-height:100vh;' +
+      'background:#FBF8F3;' +
+      'display:flex;' +
+      'flex-direction:column;' +
+      'align-items:center;' +
+      'justify-content:center;' +
+      'padding:20px;' +
+      'box-sizing:border-box;' +
+    '">' +
+      '<div style="' +
+        'background:white;' +
+        'border-radius:20px;' +
+        'padding:36px 32px;' +
+        'width:100%;' +
+        'max-width:400px;' +
+        'box-shadow:0 8px 32px rgba(0,0,0,0.1);' +
+        'box-sizing:border-box;' +
+      '">' +
+
+        /* Logo ve başlık */
+        '<div style="text-align:center;margin-bottom:28px">' +
+          '<div style="' +
+            'width:80px;height:80px;' +
+            'border-radius:50%;' +
+            'background:white;' +
+            'border:2px solid #EDE8DF;' +
+            'display:flex;align-items:center;justify-content:center;' +
+            'margin:0 auto 14px;' +
+            'overflow:hidden;' +
+          '">' +
+            (LOGO_SRC
+              ? '<img src="' + LOGO_SRC + '" style="width:72px;height:72px;object-fit:contain">'
+              : '<span style="font-size:36px">🎵</span>') +
+          '</div>' +
+          '<h1 style="' +
+            'font-family:\'Playfair Display\',serif;' +
+            'font-size:28px;font-weight:700;color:#1C1C1C;' +
+            'margin:0 0 4px' +
+          '">Baraka</h1>' +
+          '<p style="font-size:13px;color:#888;margin:0">ODTÜ THBT Fosilleri</p>' +
+        '</div>' +
+
+        /* Hata mesajı */
+        '<div id="loginMsg" style="display:none;padding:10px 14px;border-radius:10px;font-size:13px;margin-bottom:12px"></div>' +
+
+        /* E-posta */
+        '<div style="margin-bottom:14px">' +
+          '<label style="' +
+            'font-size:11px;font-weight:700;color:#888;' +
+            'text-transform:uppercase;letter-spacing:.5px;' +
+            'display:block;margin-bottom:6px' +
+          '">E-posta</label>' +
+          '<input id="loginEmail" type="email" placeholder="ornek@metu.edu.tr" style="' +
+            'width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+            'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;' +
+            'outline:none;box-sizing:border-box;background:#FBF8F3;' +
+          '">' +
+        '</div>' +
+
+        /* Şifre */
+        '<div style="margin-bottom:22px">' +
+          '<label style="' +
+            'font-size:11px;font-weight:700;color:#888;' +
+            'text-transform:uppercase;letter-spacing:.5px;' +
+            'display:block;margin-bottom:6px' +
+          '">Şifre</label>' +
+          '<input id="loginPass" type="password" placeholder="••••••••" style="' +
+            'width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+            'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;' +
+            'outline:none;box-sizing:border-box;background:#FBF8F3;' +
+          '" onkeydown="if(event.key===\'Enter\')doLogin()">' +
+        '</div>' +
+
+        /* Giriş butonu */
+        '<button onclick="doLogin()" style="' +
+          'width:100%;background:#C0392B;color:white;border:none;' +
+          'padding:13px;border-radius:12px;font-size:15px;font-weight:700;' +
+          'cursor:pointer;font-family:\'Nunito\',sans-serif;' +
+        '">Giriş Yap</button>' +
+
+        /* Kayıt ol linki */
+        '<p style="text-align:center;font-size:13px;color:#888;margin-top:18px;margin-bottom:0">' +
+          'Hesabınız yok mu? ' +
+          '<span onclick="showRegisterScreen()" style="' +
+            'color:#C0392B;cursor:pointer;font-weight:700' +
+          '">Kayıt Olun</span>' +
+        '</p>' +
+
+      '</div>' +
+    '</div>';
 }
 
 async function doLogin() {
@@ -2431,8 +2497,7 @@ async function doLogin() {
 }
 function showRegisterScreen() {
   document.body.innerHTML = `
-  <div style="min-height:100vh;background:#FBF8F3;display:flex;align-items:center;
-              justify-content:center;padding:20px;overflow-y:auto">
+  <div style="min-height:100vh;background:#FBF8F3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto">
     <div style="background:white;border-radius:20px;padding:36px 32px;width:100%;
                 max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.1);margin:20px 0">
 
