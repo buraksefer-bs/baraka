@@ -2252,7 +2252,7 @@ function showToast(msg) {
 }
 async function loadData() {
   // Üyeler
-  const { data: membersData } = await sb.from('members').select('*').eq('status', 'active');
+  const { data: membersData } = await sb.from('members').select('*').neq('status', 'inactive');
   if (membersData) members = membersData.map(m => ({
     ...m, init: m.name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase(),
     col: ['#C0392B','#27AE60','#E67E22','#7986CB','#8E44AD','#16A085'][Math.abs(m.name.length) % 6],
