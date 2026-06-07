@@ -526,65 +526,16 @@ var cIdx = 0;
 var cTimer = null;
 
 /* DATA */
-var pendingAnn = {
-  id: 'pa1',
-  label: 'Yanit Bekleniyor',
-  title: '38. Çağrı Yemegine Katılacak misiniz?',
-  detail: '11 Haziran 2025  Ankara Sheraton  Gala Yemegi',
-  deadline: 'Son gun: 30 Mayis 2025',
-  response: null
-};
+var pendingAnn = null;
 
-var photos = [
-  {gr:['#C0392B','#922B21'], em:'🎵', ev:'Bahar Konseri 2024', loc:'ODTU Kultur Merkezi', dt:'18 Mayis 2024'},
-  {gr:['#1A5276','#154360'], em:'💃', ev:'Halk Dansları Gösterisi', loc:'ODTU Açık Hava Tiyatrosu', dt:'22 Nisan 2024'},
-  {gr:['#1E8449','#145A32'], em:'🍽️', ev:'37. Çağrı Yemegi', loc:'Ankara Sheraton', dt:'15 Haziran 2024'},
-  {gr:['#7D3C98','#6C3483'], em:'🎭', ev:'Tiyatro: Olu Ozanlar', loc:'Ankara Devlet Tiyatrosu', dt:'3 Mart 2024'},
-  {gr:['#D35400','#A04000'], em:'☕', ev:'Bahar Kahvaltısı', loc:'THBT Odasi', dt:'7 Nisan 2024'},
-  {gr:['#2C3E50','#1A252F'], em:'🎶', ev:'Kis Konseri 2023', loc:'ODTU Kultur Merkezi', dt:'22 Aralik 2023'}
-];
+var photos = [];
 
-var weekly = [
-  {day:'Cum', full:'Cuma',    time:'19:00', name:'Fosil Koro',         city:'Ankara',   type:'Müzik',       col:'#C0392B', ic:'🎵'},
-  {day:'Cum', full:'Cuma',    time:'19:30', name:'Fosil Halk Oyunları',city:'Ankara',   type:'Halk Oyunları',col:'#E67E22',ic:'💃'},
-  {day:'Paz', full:'Pazar',   time:'11:30', name:'Fosil Koro',         city:'Istanbul', type:'Müzik',       col:'#27AE60', ic:'🎵'},
-  {day:'Paz', full:'Pazar',   time:'14:00', name:'Fosil Halk Oyunları',city:'Istanbul', type:'Halk Oyunları',col:'#7986CB',ic:'💃'},
-  {day:'Car', full:'Carsamba',time:'20:00', name:'Çaylak Koro',        city:'Ankara',   type:'Müzik',       col:'#8E44AD', ic:'🎵'},
-  {day:'Cmt', full:'Cumartesi',time:'15:00',name:'Tiyatro Çalışmasi',  city:'Ankara',   type:'Tiyatro',     col:'#16A085', ic:'🎭'},
-  {day:'Sal', full:'Sali',    time:'19:00', name:'Çaylak Halk Oyunları',city:'Izmir',  type:'Halk Oyunları',col:'#D35400',ic:'💃'}
-];
+var weekly = [];
 
-var CURRENT_YEAR = 2025;
-var events = [
-  {id:1,name:'Bahar Konseri 2025',type:'Konser',em:'🎵',date:'15 Mayis 2025',month:5,year:2025,time:'19:00',loc:'ODTU Kultur ve Kongre Merkezi',venue:'ODTU KKM',rsvp:true,going:false,userRole:null,tag:'Fosil',pips:['AY','BK','CL','DM'],cols:['#C0392B','#E67E22','#27AE60','#7986CB'],media:[],attended:null,
-    roles:['Korist','Baglama','Diger Enstrüman','Teknik Ekip','Gösteri Sorumlusu','Izleyici']},
-  {id:2,name:'Yıllık Iftar Yemegi',type:'Yemek',em:'🍽️',date:'28 Mart 2025',month:3,year:2025,time:'19:30',loc:'ODTU Yemekhanesi',venue:'ODTU Kampus',rsvp:true,going:true,userRole:'Katılımcı',tag:'Fosil',pips:['EF','GH','IJ'],cols:['#27AE60','#3498DB','#E67E22'],media:[],attended:null,
-    roles:null},
-  {id:3,name:'Halk Dansları Gösterisi',type:'Gösteri',em:'💃',date:'22 Nisan 2025',month:4,year:2025,time:'18:00',loc:'ODTU Açık Hava Tiyatrosu',venue:'ODTU Kampus',rsvp:false,going:false,userRole:null,tag:'Çaylak',pips:['KL','MN'],cols:['#E67E22','#9B59B6'],media:[],attended:null,
-    roles:null},
-  {id:4,name:'Sabah Kahvaltısı',type:'Kahvaltı',em:'☕',date:'10 Haziran 2025',month:6,year:2025,time:'10:00',loc:'THBT Odasi',venue:'ODTU Kampus',rsvp:true,going:false,userRole:null,tag:'Fosil',pips:['OP','QR'],cols:['#F39C12','#27AE60'],media:[],attended:null,
-    roles:null},
-  {id:5,name:'Tiyatro: Hamlet',type:'Tiyatro',em:'🎭',date:'5 Temmuz 2025',month:7,year:2025,time:'20:00',loc:'Ankara Devlet Tiyatrosu',venue:'Ozel Mekan',rsvp:true,going:false,userRole:null,tag:'Fosil',pips:['UV'],cols:['#2C3E50'],media:[],attended:null,
-    roles:['Yonetmen','Senarist','Oyuncu','Teknik Ekip','Sahne Tasarim','Isik/Ses','Izleyici']},
-  {id:6,name:'Is Sanat Konseri 2025',type:'Konser',em:'🎶',date:'20 Aralik 2025',month:12,year:2025,time:'19:00',loc:'Is Sanat',venue:'Is Sanat',rsvp:true,going:false,userRole:null,tag:'Fosil',pips:['AY','GH'],cols:['#1A5276','#C0392B'],media:[],attended:null,
-    roles:['Korist','Sef','Baglama','Ritm / Davul','Keman','Kaval','Ney','Diger Enstrüman','Teknik Ekip','Gösteri Sorumlusu','Izleyici']}
-];
+var CURRENT_YEAR = 2026;
+var events = [];
 
-var pastEvents = [
-  {id:101,name:'37. Çağrı Yemegi',type:'Yemek',em:'🍽️',date:'15 Haziran 2024',year:2024,time:'19:30',loc:'Ankara Sheraton',venue:'Ozel Mekan',tag:'Fosil',attended:true,media:[{t:'photo',ic:'📸',n:'Yemek Fotolari 1'},{t:'photo',ic:'📸',n:'Sahne Anlari'},{t:'video',ic:'🎬',n:'Acilis Konusmasi'}]},
-  {id:102,name:'Bahar Konseri 2024',type:'Konser',em:'🎵',date:'18 Mayis 2024',year:2024,time:'19:00',loc:'ODTU Kultur ve Kongre Merkezi',venue:'ODTU KKM',tag:'Fosil',attended:true,media:[{t:'photo',ic:'📸',n:'Sahne Fotolari'},{t:'video',ic:'🎬',n:'Konser Kaydi'}]},
-  {id:103,name:'Kis Tiyatrosu 2024',type:'Tiyatro',em:'🎭',date:'8 Mart 2024',year:2024,time:'18:00',loc:'Is Sanat',venue:'Is Sanat',tag:'Çaylak',attended:false,media:[{t:'photo',ic:'📸',n:'Sahne Fotolari'}]},
-  {id:104,name:'Halk Dansları Gösterisi 2024',type:'Gösteri',em:'💃',date:'20 Nisan 2024',year:2024,time:'17:00',loc:'ODTU Mimarlik Amfisi',venue:'ODTU Mimarlik Amfisi',tag:'Çaylak',attended:true,media:[]},
-  {id:105,name:'Eregeli Koy Festivali',type:'Gezi',em:'🌿',date:'12 Temmuz 2024',year:2024,time:'10:00',loc:'Eregeli Kultur Merkezi',venue:'Eregeli Kultur Merkezi',tag:'Fosil',attended:true,media:[{t:'photo',ic:'📸',n:'Festival Anlari'},{t:'video',ic:'🎬',n:'Gösteri Kaydi'},{t:'photo',ic:'📸',n:'Grup Fotoğrafi'}]},
-  {id:106,name:'36. Çağrı Yemegi',type:'Yemek',em:'🍽️',date:'10 Haziran 2023',year:2023,time:'19:30',loc:'Ankara Sheraton',venue:'Ozel Mekan',tag:'Fosil',attended:true,media:[{t:'photo',ic:'📸',n:'Yemek Fotolari'}]},
-  {id:107,name:'Kis Konseri 2023',type:'Konser',em:'🎵',date:'22 Aralik 2023',year:2023,time:'19:00',loc:'ODTU Kultur ve Kongre Merkezi',venue:'ODTU KKM',tag:'Fosil',attended:false,media:[{t:'video',ic:'🎬',n:'Konser Kaydi'},{t:'photo',ic:'📸',n:'Sahne Anlari'}]},
-  {id:108,name:'Bahar Gösterisi 2023',type:'Gösteri',em:'💃',date:'6 Mayis 2023',year:2023,time:'18:00',loc:'ODTU Mimarlik Amfisi',venue:'ODTU Mimarlik Amfisi',tag:'Çaylak',attended:true,media:[]},
-  {id:109,name:'Eregeli Yaz Kampı 2023',type:'Gezi',em:'🏕️',date:'20 Agustos 2023',year:2023,time:'09:00',loc:'Eregeli Kultur Merkezi',venue:'Eregeli Kultur Merkezi',tag:'Fosil',attended:false,media:[{t:'photo',ic:'📸',n:'Kamp Fotolari'}]},
-  {id:110,name:'Is Sanat Konseri 2023',type:'Konser',em:'🎶',date:'15 Subat 2023',year:2023,time:'20:00',loc:'Is Sanat',venue:'Is Sanat',tag:'Fosil',attended:true,media:[{t:'photo',ic:'📸',n:'Konser Anlari'},{t:'video',ic:'🎬',n:'Tam Kayit'}]},
-  {id:111,name:'35. Çağrı Yemegi',type:'Yemek',em:'🍽️',date:'18 Haziran 2022',year:2022,time:'19:30',loc:'Otel Dedeman',venue:'Ozel Mekan',tag:'Fosil',attended:true,media:[{t:'photo',ic:'📸',n:'Grup Fotoğraflari'}]},
-  {id:112,name:'Bahar Konseri 2022',type:'Konser',em:'🎵',date:'14 Mayis 2022',year:2022,time:'19:00',loc:'ODTU Kultur ve Kongre Merkezi',venue:'ODTU KKM',tag:'Fosil',attended:true,media:[]},
-  {id:113,name:'Çaylak Halk Dansları 2022',type:'Gösteri',em:'💃',date:'30 Nisan 2022',year:2022,time:'17:30',loc:'ODTU Mimarlik Amfisi',venue:'ODTU Mimarlik Amfisi',tag:'Çaylak',attended:false,media:[]}
-];
+var pastEvents = [];
 
 var evTab = 'current';
 var evFilterYear = 'Tümü';
@@ -593,126 +544,15 @@ var evFilterVenue = 'Tümü';
 var VENUES = ['Tümü','ODTU KKM','Is Sanat','ODTU Mimarlik Amfisi','Eregeli Kultur Merkezi','ODTU Kampus','Ozel Mekan'];
 
 var boardData = {
-  fosil: {
-    donemler: [
-      {
-        donem:'Kasim 2024 - Mayis 2026', yil:'2024-2026',
-        aga:{name:'N. Bulent Parlakol',thbtGiriş:'2012',odtuMez:'2016',sehir:'Ankara',col:'#7B241C'},
-        marabalar:[
-          {name:'Selin Akin',thbtGiriş:'2018',odtuMez:'2022',sehir:'Istanbul',sorumluluk:'Istanbul Marabasi'},
-          {name:'Baris Kaya',thbtGiriş:'2017',odtuMez:'2021',sehir:'Istanbul',sorumluluk:'Istanbul Halk Müziği'},
-          {name:'Ayse Celik',thbtGiriş:'2019',odtuMez:'2023',sehir:'Ankara',sorumluluk:'Ankara Koro'},
-          {name:'Ozan Yildiz',thbtGiriş:'2016',odtuMez:'2020',sehir:'Ankara',sorumluluk:'Ankara Halk Oyunları'},
-          {name:'Merve Duman',thbtGiriş:'2020',odtuMez:'2024',sehir:'Izmir',sorumluluk:'Izmir Marabasi'},
-          {name:'Kaan Polat',thbtGiriş:'2015',odtuMez:'2019',sehir:'Ankara',sorumluluk:'Gezi ve Organizasyon'},
-          {name:'Lara Muller',thbtGiriş:'2016',odtuMez:'2020',sehir:'Berlin',sorumluluk:'Hollanda ve Avrupa Marabasi'},
-          {name:'Gizem Han',thbtGiriş:'2019',odtuMez:'2022',sehir:'Ankara',sorumluluk:'Giysilik Sorumlusu'},
-          {name:'Tarik Oz',thbtGiriş:'2014',odtuMez:'2018',sehir:'New York',sorumluluk:'Kuzey Amerika Marabasi'}
-        ],
-        diger:[
-          {kategori:'Burs Sorumlusu',uyeler:[{name:'Deniz Arslan',thbtGiriş:'2013'},{name:'Fatma Yurt',thbtGiriş:'2015'}]},
-          {kategori:'Almanak Sorumlusu',uyeler:[{name:'Seda Yıl',thbtGiriş:'2017'},{name:'Aras Cinar',thbtGiriş:'2018'}]},
-          {kategori:'Belgelik Sorumlusu',uyeler:[{name:'Nisa Koc',thbtGiriş:'2016'}]},
-          {kategori:'Yöre Araştırmaları',uyeler:[{name:'Emre Uzun',thbtGiriş:'2019'},{name:'Hira Ates',thbtGiriş:'2020'}]}
-        ],
-        almanak:'#'
-      },
-      {
-        donem:'Kasim 2022 - Mayis 2024', yil:'2022-2024',
-        aga:{name:'Deniz Arslan',thbtGiriş:'2013',odtuMez:'2017',sehir:'Istanbul',col:'#154360'},
-        marabalar:[
-          {name:'Kemal Arslan',thbtGiriş:'2015',odtuMez:'2019',sehir:'Ankara',sorumluluk:'Ankara Marabasi'},
-          {name:'Zeynep Oz',thbtGiriş:'2016',odtuMez:'2020',sehir:'Istanbul',sorumluluk:'Istanbul Marabasi'},
-          {name:'Cem Uzun',thbtGiriş:'2017',odtuMez:'2021',sehir:'Ankara',sorumluluk:'Ankara Koro'},
-          {name:'Nisa Koc',thbtGiriş:'2016',odtuMez:'2020',sehir:'Ankara',sorumluluk:'Giysilik Sorumlusu'},
-          {name:'Hakan Sen',thbtGiriş:'2014',odtuMez:'2018',sehir:'Istanbul',sorumluluk:'Istanbul Halk Müziği'},
-          {name:'Lale Arslan',thbtGiriş:'2015',odtuMez:'2019',sehir:'Ankara',sorumluluk:'Gezi Marabasi'},
-          {name:'Mert Dogan',thbtGiriş:'2018',odtuMez:'2022',sehir:'Ankara',sorumluluk:'Tiyatro Sorumlusu'}
-        ],
-        diger:[
-          {kategori:'Burs Sorumlusu',uyeler:[{name:'Ali Yilmaz',thbtGiriş:'2012'},{name:'Burak Demir',thbtGiriş:'2014'}]},
-          {kategori:'Almanak Sorumlusu',uyeler:[{name:'Cemre Ak',thbtGiriş:'2015'}]}
-        ],
-        almanak:'#'
-      },
-      {
-        donem:'Kasim 2020 - Mayis 2022', yil:'2020-2022',
-        aga:{name:'Ayse Demir',thbtGiriş:'2011',odtuMez:'2015',sehir:'Ankara',col:'#1A5276'},
-        marabalar:[
-          {name:'Baris Can',thbtGiriş:'2013',odtuMez:'2017',sehir:'Ankara',sorumluluk:'Ankara Marabasi'},
-          {name:'Sule Kara',thbtGiriş:'2014',odtuMez:'2018',sehir:'Istanbul',sorumluluk:'Istanbul Marabasi'},
-          {name:'Ege Yurt',thbtGiriş:'2015',odtuMez:'2019',sehir:'Izmir',sorumluluk:'Izmir Marabasi'},
-          {name:'Mura Tas',thbtGiriş:'2016',odtuMez:'2020',sehir:'Ankara',sorumluluk:'Ankara Koro'},
-          {name:'Figen Duru',thbtGiriş:'2012',odtuMez:'2016',sehir:'Almanya',sorumluluk:'Avrupa Marabasi'}
-        ],
-        diger:[
-          {kategori:'Burs Sorumlusu',uyeler:[{name:'Orhan Yıl',thbtGiriş:'2011'}]},
-          {kategori:'Almanak Sorumlusu',uyeler:[{name:'Pinar Sen',thbtGiriş:'2013'},{name:'Ugur Ak',thbtGiriş:'2014'}]}
-        ],
-        almanak:'#'
-      }
-    ]
-  },
-  caylak: {
-    donemler: [
-      {
-        donem:'Kasim 2024 - Mayis 2025', yil:'2024-2025',
-        basklik:'Baskan',
-        aga:{name:'Elif Sahin',thbtGiriş:'2023',odtuMez:'',sehir:'Ankara',col:'#1E8449'},
-        marabalar:[
-          {name:'Tolga Aydin',thbtGiriş:'2023',odtuMez:'',sehir:'Ankara',sorumluluk:'Halk Oyunları'},
-          {name:'Merve Duman',thbtGiriş:'2024',odtuMez:'',sehir:'Ankara',sorumluluk:'Halk Müziği ve Koro'},
-          {name:'Kaan Polat',thbtGiriş:'2024',odtuMez:'',sehir:'Ankara',sorumluluk:'Giysilik'},
-          {name:'Busra Isik',thbtGiriş:'2024',odtuMez:'',sehir:'Istanbul',sorumluluk:'Belgelik ve Arsiv'},
-          {name:'Emre Guler',thbtGiriş:'2023',odtuMez:'',sehir:'Ankara',sorumluluk:'Kuramsal Çalışmalar'}
-        ],
-        diger:[
-          {kategori:'Etkinlik Sorumlusu',uyeler:[{name:'Rana Kurt',thbtGiriş:'2024'},{name:'Selim As',thbtGiriş:'2023'}]},
-          {kategori:'Sosyal Medya',uyeler:[{name:'Irem Oz',thbtGiriş:'2024'}]}
-        ],
-        almanak:null
-      },
-      {
-        donem:'Kasim 2023 - Mayis 2024', yil:'2023-2024',
-        basklik:'Baskan',
-        aga:{name:'Furkan Cam',thbtGiriş:'2022',odtuMez:'',sehir:'Ankara',col:'#7D3C98'},
-        marabalar:[
-          {name:'Dilek Yıl',thbtGiriş:'2022',odtuMez:'',sehir:'Ankara',sorumluluk:'Halk Oyunları'},
-          {name:'Sercan Ozer',thbtGiriş:'2023',odtuMez:'',sehir:'Ankara',sorumluluk:'Dergi'},
-          {name:'Buse Cay',thbtGiriş:'2023',odtuMez:'',sehir:'Ankara',sorumluluk:'Kuramsal Çalışmalar'},
-          {name:'Arda Kilic',thbtGiriş:'2022',odtuMez:'',sehir:'Istanbul',sorumluluk:'Giysilik'}
-        ],
-        diger:[
-          {kategori:'Etkinlik Sorumlusu',uyeler:[{name:'Mavi Deniz',thbtGiriş:'2023'}]}
-        ],
-        almanak:null
-      }
-    ]
-  }
+  fosil: { donemler: [] },
+  caylak: { donemler: [] }
 };
 
-var members = [
-  {id:1,name:'Ahmet Yilmaz',init:'AY',role:'admin',status:'active',email:'ahmet@metu.edu.tr',thbtEntry:'2015-09',odtuGrad:'2019-06',type:'Fosil',col:'#C0392B',oyunlar:['Trabzon','Burdur','Edirne'],enstru:['Baglama','Kaval'],muzik:['Koro'],birimler:['Dergilik'],weekly:true,city:'Ankara',country:'Turkiye',dept:'Bilgisayar Muh.',employer:'Arcelik'},
-  {id:2,name:'Berna Koc',init:'BK',role:'user',status:'active',email:'berna@metu.edu.tr',thbtEntry:'2018-09',odtuGrad:'2021-06',type:'Fosil',col:'#27AE60',oyunlar:['Gaziantep','Konya'],enstru:['Davul','Kemence'],muzik:['Koro'],birimler:['Giysilik','Belgelik'],weekly:true,city:'Istanbul',country:'Turkiye',dept:'Makine Muh.',employer:'Ford Otosan'},
-  {id:3,name:'Can Lale',init:'CL',role:'user',status:'active',email:'can@metu.edu.tr',thbtEntry:'2020-09',odtuGrad:'2023-06',type:'Çaylak',col:'#E67E22',oyunlar:['Ege','Zeybek'],enstru:['Baglama'],muzik:[],birimler:['Yöre Araştırmaları'],weekly:false,city:'Ankara',country:'Turkiye',dept:'Elektrik Muh.',employer:'TEIAS'},
-  {id:4,name:'Deniz Mert',init:'DM',role:'user',status:'pending',email:'deniz@metu.edu.tr',thbtEntry:'2024-09',odtuGrad:'',type:'Çaylak',col:'#7986CB',oyunlar:[],enstru:[],muzik:[],birimler:[],weekly:false,city:'Izmir',country:'Turkiye',dept:'Kimya Muh.',employer:''},
-  {id:5,name:'Emre Fidan',init:'EF',role:'user',status:'pending',email:'emre@metu.edu.tr',thbtEntry:'2024-09',odtuGrad:'',type:'Çaylak',col:'#8E44AD',oyunlar:[],enstru:[],muzik:[],birimler:[],weekly:false,city:'Bursa',country:'Turkiye',dept:'Insaat Muh.',employer:''},
-  {id:6,name:'Gizem Han',init:'GH',role:'user',status:'active',email:'gizem@metu.edu.tr',thbtEntry:'2019-09',odtuGrad:'2022-06',type:'Fosil',col:'#16A085',oyunlar:['Kars','Harput','Erzurum'],enstru:['Kemence','Tulum'],muzik:['Koro','Koro Sefi'],birimler:['Dergilik','Giysilik'],weekly:true,city:'Ankara',country:'Turkiye',dept:'Mimarlik',employer:'Tabanlıoglu'},
-  {id:7,name:'Lara Muller',init:'LM',role:'user',status:'active',email:'lara@thbt.de',thbtEntry:'2016-09',odtuGrad:'2020-06',type:'Fosil',col:'#C0392B',oyunlar:['Trabzon','Ege'],enstru:['Baglama'],muzik:['Koro'],birimler:[],weekly:false,city:'Berlin',country:'Almanya',dept:'Ul. Iliskiler',employer:'Siemens'},
-  {id:8,name:'Tarik Oz',init:'TO',role:'user',status:'active',email:'tarik@thbt.us',thbtEntry:'2014-09',odtuGrad:'2018-06',type:'Fosil',col:'#1A5276',oyunlar:['Ege'],enstru:['Ud'],muzik:['Solo'],birimler:[],weekly:false,city:'New York',country:'ABD',dept:'Endustri Muh.',employer:'McKinsey'}
-];
+var members = [];
 
-var announcements = [
-  {title:'Bahar Konseri Prova Takvimi',text:'15 Mayis konseri oncesi prova takvimi paylasılmıstır. Koro ve halk oyunlari ekipleri katilim bekliyor.',date:'2 Mayis 2025',icon:'🎵',bg:'#FDEDEC',wa:true},
-  {title:'Yeni Üye Kayitlari Basladi',text:'2025-2026 donemi icin yeni uye basvurulari baslamistir. Tanıdıklarinizi davet edebilirsiniz.',date:'28 Nisan 2025',icon:'🌱',bg:'#EAFAF1',wa:false},
-  {title:'Dönem Ağası Seçimleri',text:'Yeni donem agasi secimi 20 Mayis\'ta gerceklesecektir. Son adaylik tarihi 15 Mayis.',date:'25 Nisan 2025',icon:'🗳️',bg:'#FEF9E7',wa:true}
-];
+var announcements = [];
 
-var talepler = [
-  {type:'Is',icon:'💼',tc:'#EBF5FB',tt:'#1A5276',title:'Yazilim Gelistirici Ariyorum',body:'Sirketimde full-stack developer pozisyonu acik. Tercihen THBT\'li. 3+ yil deneyim aranıyor.',person:'Ahmet Y.',date:'1 Mayis 2025',con:'Mesaj Gönder'},
-  {type:'Kan Bagisi',icon:'🩸',tc:'#FDEDEC',tt:'#C0392B',title:'0 RH+ Kan Acil Aranıyor',body:'Annem ameliyat olacak. 0 Rh pozitif ihtiyacimiz var. Ankara\'da verebilecek olan lutfen ulassin.',person:'Berna K.',date:'3 Mayis 2025',con:'Ara'},
-  {type:'Kiralik',icon:'🏠',tc:'#EAFAF1',tt:'#1E8449',title:'Ankara Cankaya\'da Kiralik Daire',body:'2+1, esyali, ODTU\'ye 10 dakika. Agustos basi bosaliyor. THBT\'li aile/cift tercih edilir.',person:'Gizem H.',date:'28 Nisan 2025',con:'Iletisim'}
-];
+var talepler = [];
 
 var HALK = ['Trabzon','Gaziantep','Burdur','Edirne','Ege','Konya','Kars','Silifke','Ankara','Elazig','Erzurum','Harput','Kastamonu','Malatya','Teke','Urfa','Van','Zeybek'];
 var MUZIK = ['Koro','Solo','Enstrü. Egitmeni','Koro Sefi'];
@@ -1375,6 +1215,16 @@ function pgBoard() {
   '</div>';
 
   /* Current period (first) */
+  if (!grp.donemler || grp.donemler.length === 0) {
+  setMC(tabs +
+    '<div style="text-align:center;padding:60px 20px;color:var(--muted)">' +
+    '<div style="font-size:48px;margin-bottom:16px">🦅</div>' +
+    '<div style="font-weight:700;font-size:16px;margin-bottom:8px">Henüz kayıt yok</div>' +
+    '<div style="font-size:13px">Yönetim Paneli\'nden dönem bilgilerini ekleyebilirsiniz.</div>' +
+    '</div>'
+  );
+  return;
+}
   var cur = grp.donemler[0];
   var isÇaylak = !isFosil;
   var agaLabel = isÇaylak ? (cur.basklik || 'Baskan') : 'Dönem Ağası';
