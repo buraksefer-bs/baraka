@@ -1856,9 +1856,19 @@ var yetkiBody =
 
 /* Admin actions */
 function adminApprove(id) {
-  var m = members.find ? members.find(function(x){ return x.id===id; }) : null;
-  if (!m) { for(var i=0;i<members.length;i++) if(members[i].id===id){m=members[i];break;} }
-  if (m) { m.status='active'; showToast(m.name + ' onaylandi ✓'); pgProfile(); }
+  var { error } = await sb.from('members')
+    .update({ status: 'active' })
+    .eq('id', id);
+
+  if (error) { showToast('Hata: ' + error.message); return; }
+
+  for (var i = 0; i < members.length; i++) {
+    if (members[i].id === id) { members[i].status = 'active'; break; }
+  }
+  showToast('Üye onaylandı ✓');
+  pfTab = 'admin';
+  await loadData();
+  pgProfile();
 }
 function adminReject(id) {
   for (var i=0;i<members.length;i++) {
