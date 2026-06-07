@@ -481,8 +481,9 @@ async function initApp() {
 if (member && member.status === 'pending') {
   await sb.auth.signOut();
   document.body.innerHTML = `
-  <div style="min-height:100vh;background:#FBF8F3;display:flex;align-items:center;
-              justify-content:center;padding:20px">
+  <div style="position:fixed;inset:0;background:#FBF8F3;display:flex;
+              flex-direction:column;align-items:center;justify-content:center;
+              padding:20px;box-sizing:border-box">
     <div style="background:white;border-radius:20px;padding:40px 32px;width:100%;
                 max-width:380px;box-shadow:0 8px 32px rgba(0,0,0,0.1);text-align:center">
       <div style="font-size:48px;margin-bottom:16px">⏳</div>
@@ -541,7 +542,7 @@ var evTab = 'current';
 var evFilterYear = 'Tümü';
 var evFilterTag = 'Tümü';
 var evFilterVenue = 'Tümü';
-var VENUES = ['Tümü','ODTU KKM','Is Sanat','ODTU Mimarlik Amfisi','Eregeli Kultur Merkezi','ODTU Kampus','Ozel Mekan'];
+var VENUES = ['Tümü','ODTU KKM','Is Sanat','ODTU Mimarlik Amfisi','ODTU Kampus','Ozel Mekan'];
 
 var boardData = {
   fosil: { donemler: [] },
@@ -554,10 +555,10 @@ var announcements = [];
 
 var talepler = [];
 
-var HALK = ['Trabzon','Gaziantep','Burdur','Edirne','Ege','Konya','Kars','Silifke','Ankara','Elazig','Erzurum','Harput','Kastamonu','Malatya','Teke','Urfa','Van','Zeybek'];
+var HALK = ['Adana','Ankara','Adıyaman','Trabzon','Gaziantep','Burdur','Edirne','Aydın','Muğla','Uşak','Konya','Kars','Silifke','Elazig','Erzurum','Van','Kırşehir','Diyarbakır','Gaziantep','Bitlis','Rize','Artvin'];
 var MUZIK = ['Koro','Solo','Enstrü. Egitmeni','Koro Sefi'];
-var ENSTR = ['Baglama','Kaval','Davul','Kemence','Keman','Ney','Zurna','Tulum','Gayda','Dumbelek','Def','Ud','Cura','Kopuz','Mey','Balaban'];
-var BIRIM = ['Giysilik','Dergilik','Belgelik','Yöre Araştırmaları'];
+var ENSTR = ['Bağlama','Kaval','Gitar','Bas','Perküsyon','Kemençe','Zurna','Tulum'];
+var BIRIM = ['Halk Müziği','Halk Oyunları','Halk Tiyatrosu','Giysilik','Dergilik','Belgelik','Yöre Araştırmaları'];
 
 var THBT_LOGO = 'data:image/png;base64,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';
 var ODTU_LOGO = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAAESUlEQVR4nJWVzU8UWRTFf+9VddPNx4iNioaEwZioGBNd6QITdeVG48JEQty40ZgY/wLjysSVce9Cw0IT/gIXGhFCHJEv0YSJ4hg+1IEIIjRN011dVWcW1V2AH5E5q3qvXt1z7q3z7jWSxDooCDCOA0B+ZIRsdzcrw8MECwvUHj+OsZbUgQNUtbQQLC5ia2tJ7dmDs2ULP4XWIfR9SdLKq1caP3NGw+m0/gKNNDRo5vZtrbx+rZHqao02N2v2zh0FuZyK09PK9vYqNzQkBUE5UBjHjAnCUkmSNHf/vgaTSQ2A+kH/tLfLX1qKzhSLer1rV/zu3alTClZWJEmr799rqbtbQaGwXnNEUFE+39mpl6Bhx9EA6MOFC1ovwF9a0uiOHRo0RsPJpPpBfx89Kj+XkySVvnxRtqcnilfOgrgso6MaTCQ0lEhowFqNHT6s0POkIIgF+NlsRAAaWkcycfFiLKT46VNUrnKpLMaAxMerVwlLJQxggD/v3sUkEkjCWPvz/+d5JFyXL52dZLu7QSLZ1ARAaX4ejMEaa8k+fcrS8+ckkkn8Uon606epOXJkg6N+CQmMYebmTSpi0/v3401OAmABvnZ2gjFU/Lrt8uXow40O/nn8IMABcn19FN6+jVTX1GBclyCXw4b5PLm+PqxE6HkkMxnq2trAmN+rL8M4Dn4QkH38ON5zMhn8uTlsYXwc7/NnrLUISLe24tTXx6lvFgZYGR6O1+4ff0QZeNPThEEAjoOAZHNznPqmUS6lNzW1RphKId/HhrlceSdSa+vqNh+4Er+cQZjPrxE4TtlFyeTGw573vwkqhTSuu7YZhiBh3cbG6EC5JKXZ2ejAL7z/KwhINDauxfc8jDHY1N69uFu3EgYBFii8e4dKpehybcKmkXSDjCF18OAawcoKtroam2hsJH3oEKExWNelODnJ6tgYSCgMN0cQhliJupMn4y3/2zfcTCa6aJnz56OW4LoEEt+6uuJb+VtYSyiRammhtq0NiBwYLC/jNjRgkch0dJDavp3A83CtZe7ePfyFhahMv8nCWEsgsf3aNWxVFQDFiQkSDQ2RixSGOPX1NN26RRCG2GSS4vw8/16/DtYi3/91cMch8H1q9u1jx5UrUbUKBUozM1Tt3l1pN2vz4EN7u16ARlIpDYDmHzyIB43CcEO7Hk4koradSik3MBC352xvr0oLC/GaeMQFgcJCQe/PnlU/aMhaDaVS+trVFfd6f3FRozt3atAYvQQNpdNafPRIkhTk88r29qr48eOGsbk2kytzNAz16cYNDaXT6ge9AE1cuqTi1JTCYlEjtbV6CXp74oRWx8YkSfmxMS09eSJvdvaHmWykdVapPBpDYXycrw8fsvzsGatv3pBoaiLT0cFyTw81x46ROXcOJPyFBdyGBtKtrdFN/q5JbiSo8Hw3aMLVVYLlZYy1uNu2Eebz+IuL2FQKN5NZ9+GPHfg/CrtRqHtiZ2sAAAAASUVORK5CYII=';
@@ -1717,19 +1718,45 @@ function buildAdminPanel() {
       }).join('');
 
   /* 2. Yetki Yönetimi */
-  var active = members.filter(function(m){ return m.status === 'active'; });
-  var yetkiBody = '<div style="font-size:12.5px;color:var(--muted);margin-bottom:12px">Üyeye Ağa veya Maraba yetkisi verin.</div>' +
-    active.map(function(m){
-      return '<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)">' +
-        '<div class="av" style="width:32px;height:32px;font-size:11px;background:' + m.col + '">' + m.init + '</div>' +
-        '<div style="flex:1;font-weight:600;font-size:13px">' + m.name + '</div>' +
-        '<select class="mem-sel" onchange="adminSetRole(' + m.id + ',this.value)" style="font-size:12px">' +
-          '<option value="member"' + (!m.appRole||m.appRole==='member'?' selected':'') + '>Üye</option>' +
-          '<option value="maraba"' + (m.appRole==='maraba'?' selected':'') + '>Maraba</option>' +
-          '<option value="aga"' + (m.appRole==='aga'?' selected':'') + '>Ağa</option>' +
-        '</select>' +
-      '</div>';
-    }).join('');
+var yetkiBody =
+  '<div style="font-size:12.5px;color:var(--muted);margin-bottom:14px">' +
+  'Üyeye rol ve dönem bilgisi atayın. Ağa veya Maraba seçilirse dönem bilgisi gereklidir.</div>' +
+
+  /* Üye seç */
+  '<div class="fg"><label class="fl">Üye</label>' +
+  buildDD('yk_member', 'Üye arayın...', members.filter(function(m){ return m.status==='active'; }).map(function(m){ return {val: m.id, lbl: m.name}; })) +
+  '</div>' +
+
+  /* Rol seç */
+  '<div class="fg"><label class="fl">Rol</label>' +
+  '<select id="yk_role" class="fs" onchange="ykRoleChanged()">' +
+  '<option value="member">Üye</option>' +
+  '<option value="maraba">Maraba</option>' +
+  '<option value="aga">Ağa</option>' +
+  '</select></div>' +
+
+  /* Sorumluluk (sadece Maraba için) */
+  '<div id="yk_sorumluluk_wrap" style="display:none" class="fg">' +
+  '<label class="fl">Sorumluluk Alanı</label>' +
+  '<input class="fi" id="yk_sorumluluk" placeholder="İstanbul Marabası, Ankara Koro...">' +
+  '</div>' +
+
+  /* Dönem */
+  '<div id="yk_donem_wrap" style="display:none">' +
+  '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">' +
+  '<div class="fg"><label class="fl">Dönem Başlangıcı</label>' +
+  '<input class="fi" id="yk_start" type="month" placeholder="2024-11"></div>' +
+  '<div class="fg"><label class="fl">Dönem Bitişi (boş = devam ediyor)</label>' +
+  '<input class="fi" id="yk_end" type="month" placeholder=""></div>' +
+  '</div>' +
+  '<div style="font-size:11.5px;color:var(--muted);margin-top:-6px;margin-bottom:12px">' +
+  '📌 Bitiş boş bırakılırsa <strong>güncel dönem</strong> olarak kaydedilir.</div>' +
+  '</div>' +
+
+  '<div id="yk_result" style="display:none;padding:10px 14px;border-radius:10px;' +
+  'font-size:13px;margin-bottom:10px"></div>' +
+
+  '<button class="sbtn" onclick="adminSaveRole()" style="margin-top:4px">💾 Kaydet</button>';
 
   /* 3. Etkinlik Oluştur */
   var etkinlikBody =
@@ -1838,9 +1865,119 @@ function adminReject(id) {
     if(members[i].id===id){ members.splice(i,1); showToast('Üye reddedildi'); pgProfile(); return; }
   }
 }
-function adminSetRole(id, role) {
-  for (var i=0;i<members.length;i++) { if(members[i].id===id){ members[i].appRole=role; showToast('Yetki guncellendi: '+role); return; } }
+function ykRoleChanged() {
+  var role = document.getElementById('yk_role').value;
+  var donemWrap = document.getElementById('yk_donem_wrap');
+  var sorWrap = document.getElementById('yk_sorumluluk_wrap');
+  if (donemWrap) donemWrap.style.display = (role === 'aga' || role === 'maraba') ? 'block' : 'none';
+  if (sorWrap) sorWrap.style.display = role === 'maraba' ? 'block' : 'none';
 }
+
+async function adminSaveRole() {
+  var memberId = ddGet('yk_member');
+  var role = document.getElementById('yk_role') ? document.getElementById('yk_role').value : '';
+  var start = document.getElementById('yk_start') ? document.getElementById('yk_start').value : '';
+  var end = document.getElementById('yk_end') ? document.getElementById('yk_end').value : '';
+  var sorumluluk = document.getElementById('yk_sorumluluk') ? document.getElementById('yk_sorumluluk').value.trim() : '';
+  var res = document.getElementById('yk_result');
+
+  function showRes(text, ok) {
+    if (!res) return;
+    res.style.display = 'block';
+    res.style.background = ok ? '#EAFAF1' : '#FDEDEC';
+    res.style.color = ok ? '#1E8449' : '#C0392B';
+    res.textContent = text;
+  }
+
+  if (!memberId) { showRes('Lütfen bir üye seçin.', false); return; }
+  if (!role) { showRes('Lütfen bir rol seçin.', false); return; }
+  if ((role === 'aga' || role === 'maraba') && !start) {
+    showRes('Dönem başlangıç tarihi gereklidir.', false); return;
+  }
+
+  /* 1. members tablosunda rolü güncelle */
+  var { error: roleErr } = await sb.from('members')
+    .update({ app_role: role })
+    .eq('id', memberId);
+
+  if (roleErr) { showRes('Hata: ' + roleErr.message, false); return; }
+
+  /* Yerel array'i de güncelle */
+  for (var i = 0; i < members.length; i++) {
+    if (members[i].id === memberId) { members[i].app_role = role; break; }
+  }
+
+  /* 2. Ağa ise board_fosil tablosuna ekle */
+  if (role === 'aga') {
+    var isCurrent = !end;
+    var termLabel = formatTermLabel(start, end);
+
+    /* Önceki güncel dönemieri kapat */
+    if (isCurrent) {
+      await sb.from('board_fosil').update({ is_current: false }).eq('is_current', true);
+    }
+
+    var { error: boardErr } = await sb.from('board_fosil').insert({
+      aga_id: memberId,
+      term: termLabel,
+      year_label: start.substring(0,4) + (end ? '-' + end.substring(0,4) : '-...'),
+      is_current: isCurrent
+    });
+
+    if (boardErr) { showRes('Rol kaydedildi ama dönem eklenemedi: ' + boardErr.message, false); return; }
+  }
+
+  /* 3. Maraba ise board_marabalar tablosuna ekle */
+  if (role === 'maraba') {
+    /* Güncel board_fosil kaydını bul */
+    var { data: curBoard } = await sb.from('board_fosil')
+      .select('id').eq('is_current', true).single();
+
+    if (curBoard) {
+      await sb.from('board_marabalar').insert({
+        board_id: curBoard.id,
+        member_id: memberId,
+        sorumluluk: sorumluluk || 'Maraba'
+      });
+    }
+  }
+
+  showRes('✓ Kaydedildi!', true);
+  /* Formu sıfırla */
+  setTimeout(function() {
+    if (res) res.style.display = 'none';
+    var ri = document.getElementById('dd_input_yk_member');
+    var rv = document.getElementById('dd_val_yk_member');
+    var rs = document.getElementById('yk_start');
+    var re = document.getElementById('yk_end');
+    var rso = document.getElementById('yk_sorumluluk');
+    if (ri) ri.value = '';
+    if (rv) rv.value = '';
+    if (rs) rs.value = '';
+    if (re) re.value = '';
+    if (rso) rso.value = '';
+    var dw = document.getElementById('yk_donem_wrap');
+    var sw = document.getElementById('yk_sorumluluk_wrap');
+    if (dw) dw.style.display = 'none';
+    if (sw) sw.style.display = 'none';
+  }, 2000);
+}
+
+function formatTermLabel(start, end) {
+  var months = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran',
+                'Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  function fmt(val) {
+    if (!val) return '';
+    var parts = val.split('-');
+    return months[parseInt(parts[1])-1] + ' ' + parts[0];
+  }
+  return fmt(start) + (end ? ' – ' + fmt(end) : ' – devam ediyor');
+}
+
+function adminSetRole(id, role) {
+  /* Eski basit fonksiyon — artık kullanılmıyor */
+}
+
 function adminCreateEvent() {
   var name = document.getElementById('adm_ename').value.trim();
   if (!name) { showToast('Etkinlik adi gerekli'); return; }
