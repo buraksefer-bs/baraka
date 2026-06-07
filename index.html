@@ -2672,74 +2672,246 @@ async function doSetNewPassword() {
     }, 2000);
   }
 }
+/* ── Aranabilir Dropdown Bileşeni ── */
+var ddState = {};
+
+function buildDD(id, placeholder, options) {
+  return '<div style="position:relative" id="dd_wrap_' + id + '">' +
+    '<input id="dd_input_' + id + '" autocomplete="off" placeholder="' + placeholder + '" ' +
+    'oninput="ddFilter(\'' + id + '\',this.value)" ' +
+    'onfocus="ddOpen(\'' + id + '\')" ' +
+    'onblur="setTimeout(function(){ddClose(\'' + id + '\')},200)" ' +
+    'style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+    'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;' +
+    'outline:none;box-sizing:border-box;background:#FBF8F3;cursor:pointer" ' +
+    'readonly>' +
+    '<div id="dd_list_' + id + '" style="' +
+    'display:none;position:absolute;top:100%;left:0;right:0;z-index:999;' +
+    'background:white;border:1.5px solid #EDE8DF;border-radius:10px;' +
+    'max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);' +
+    'margin-top:4px">' +
+    options.map(function(o) {
+      var val = typeof o === 'object' ? o.val : o;
+      var lbl = typeof o === 'object' ? o.lbl : o;
+      return '<div onclick="ddSelect(\'' + id + '\',\'' +
+        val.replace(/'/g,"\\'") + '\',\'' +
+        lbl.replace(/'/g,"\\'") + '\')" ' +
+        'style="padding:10px 14px;font-size:13px;cursor:pointer;' +
+        'border-bottom:1px solid #f5f5f5;transition:background .1s" ' +
+        'onmouseenter="this.style.background=\'#FBF8F3\'" ' +
+        'onmouseleave="this.style.background=\'white\'">' +
+        lbl + '</div>';
+    }).join('') +
+    '</div>' +
+    '<input type="hidden" id="dd_val_' + id + '">' +
+  '</div>';
+}
+
+function ddOpen(id) {
+  var input = document.getElementById('dd_input_' + id);
+  if (input) input.removeAttribute('readonly');
+  var list = document.getElementById('dd_list_' + id);
+  if (list) { list.style.display = 'block'; ddFilter(id, ''); }
+}
+function ddClose(id) {
+  var list = document.getElementById('dd_list_' + id);
+  if (list) list.style.display = 'none';
+  var input = document.getElementById('dd_input_' + id);
+  if (input) input.setAttribute('readonly','');
+}
+function ddFilter(id, q) {
+  var list = document.getElementById('dd_list_' + id);
+  if (!list) return;
+  list.style.display = 'block';
+  var items = list.querySelectorAll('div');
+  var lower = q.toLowerCase();
+  items.forEach(function(item) {
+    item.style.display =
+      item.textContent.toLowerCase().indexOf(lower) >= 0 ? '' : 'none';
+  });
+}
+function ddSelect(id, val, lbl) {
+  var input = document.getElementById('dd_input_' + id);
+  var hidden = document.getElementById('dd_val_' + id);
+  if (input) input.value = lbl;
+  if (hidden) hidden.value = val;
+  ddClose(id);
+}
+function ddGet(id) {
+  var el = document.getElementById('dd_val_' + id);
+  return el ? el.value : '';
+}
+
+/* ── Veri Listeleri ── */
+var THBT_YEARS = (function() {
+  var yrs = []; for (var y = 2025; y >= 1961; y--) yrs.push(String(y)); return yrs;
+})();
+
+var ODTU_YEARS = (function() {
+  var yrs = []; for (var y = 2030; y >= 1965; y--) yrs.push(String(y)); return yrs;
+})();
+
+var ODTU_DEPTS = [
+  'Bilgisayar Mühendisliği','Makine Mühendisliği','Elektrik-Elektronik Mühendisliği',
+  'İnşaat Mühendisliği','Kimya Mühendisliği','Endüstri Mühendisliği',
+  'Havacılık ve Uzay Mühendisliği','Metalurji ve Malzeme Mühendisliği',
+  'Çevre Mühendisliği','Maden Mühendisliği','Petrol ve Doğal Gaz Mühendisliği',
+  'Jeoloji Mühendisliği','Biyomedikal Mühendisliği',
+  'Mimarlık','Şehir ve Bölge Planlama','Peyzaj Mimarlığı',
+  'İç Mimarlık','Endüstriyel Tasarım',
+  'Fizik','Kimya','Matematik','Biyoloji','İstatistik',
+  'İşletme','İktisat','Uluslararası İlişkiler',
+  'Kamu Yönetimi','Sosyoloji','Psikoloji','Tarih','Felsefe',
+  'Türk Dili ve Edebiyatı','Arkeoloji','Coğrafya',
+  'Bilişsel Bilimler','Jeodezi ve Coğrafi Bilgi Teknolojileri',
+  'Eğitim Bilimleri','Eğitim Fakültesi - Diğer'
+].sort();
+
+var COUNTRIES = [
+  'Türkiye','Almanya','Amerika Birleşik Devletleri','Avustralya','Avusturya',
+  'Belçika','Birleşik Arap Emirlikleri','Birleşik Krallık','Çek Cumhuriyeti',
+  'Danimarka','Finlandiya','Fransa','Hollanda','İspanya','İsveç','İsviçre',
+  'İtalya','Japonya','Kanada','Katar','Lüksemburg','Norveç','Polonya',
+  'Portekiz','Romanya','Singapur','Yeni Zelanda','Yunanistan','Diğer'
+];
+
+var TR_CITIES = [
+  'Adana','Ankara','Antalya','Balıkesir','Bolu','Bursa','Denizli','Diyarbakır',
+  'Edirne','Erzurum','Eskişehir','Gaziantep','Hatay','İstanbul','İzmir',
+  'Kayseri','Kocaeli','Konya','Malatya','Mersin','Muğla','Ordu','Sakarya',
+  'Samsun','Trabzon','Van'
+].sort();
+
+var INTL_CITIES = [
+  'Amsterdam','Berlin','Brüksel','Chicago','Dubai','Frankfurt','Hamburg',
+  'Kopenhag','Londra','Los Angeles','Luxemburg','Madrid','Melbourne',
+  'Milano','Münih','New York','Paris','Roma','San Francisco','Sidney',
+  'Singapur','Stockholm','Tokyo','Toronto','Viyana','Zürih','Diğer'
+].sort();
+
+function getCities() {
+  var country = ddGet('reg_country');
+  if (country === 'Türkiye' || country === '') return TR_CITIES;
+  return INTL_CITIES;
+}
+
+/* ── Kayıt Ekranı ── */
 function showRegisterScreen() {
-  document.body.innerHTML = `
-  <div style="position:fixed;inset:0;background:#FBF8F3;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px;box-sizing:border-box;overflow-y:auto">
-    <div style="background:white;border-radius:20px;padding:36px 32px;width:100%;
-                max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.1);margin:20px 0">
+  document.body.style.cssText = 'margin:0;padding:0;font-family:Nunito,sans-serif;';
 
-      <div style="text-align:center;margin-bottom:24px">
-        <h1 style="font-family:'Playfair Display',serif;font-size:26px;
-                   font-weight:700;color:#1C1C1C">Baraka'ya Katıl</h1>
-        <p style="font-size:13px;color:#888;margin-top:4px">
-          ODTÜ THBT Fosilleri · Kayıt Formu</p>
-      </div>
+  function field(label, content) {
+    return '<div style="margin-bottom:14px"><label style="font-size:11px;' +
+      'font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;' +
+      'display:block;margin-bottom:6px">' + label + '</label>' + content + '</div>';
+  }
+  function textInput(id, placeholder, type) {
+    return '<input id="' + id + '" type="' + (type||'text') + '" placeholder="' +
+      placeholder + '" style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;' +
+      'padding:11px 14px;font-size:14px;font-family:\'Nunito\',sans-serif;outline:none;' +
+      'box-sizing:border-box;background:#FBF8F3">';
+  }
 
-      <div id="regMsg" style="display:none;padding:10px 14px;border-radius:10px;
-                              font-size:13px;margin-bottom:12px"></div>
+  document.body.innerHTML =
+    '<div style="position:fixed;inset:0;background:#FBF8F3;overflow-y:auto">' +
+    '<div style="min-height:100%;display:flex;align-items:flex-start;' +
+    'justify-content:center;padding:24px 20px">' +
+    '<div style="background:white;border-radius:20px;padding:32px;width:100%;' +
+    'max-width:440px;box-shadow:0 8px 32px rgba(0,0,0,0.1);box-sizing:border-box;' +
+    'margin:auto">' +
 
-      <!-- Temel bilgiler -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><label class="fl">Ad</label>
-          <input class="fi" id="reg_first" placeholder="Adınız"></div>
-        <div class="fg"><label class="fl">Soyad</label>
-          <input class="fi" id="reg_last" placeholder="Soyadınız"></div>
-      </div>
-      <div class="fg"><label class="fl">E-posta</label>
-        <input class="fi" id="reg_email" type="email"
-               placeholder="ornek@metu.edu.tr"></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><label class="fl">Şifre</label>
-          <input class="fi" id="reg_pass" type="password"
-                 placeholder="En az 6 karakter"></div>
-        <div class="fg"><label class="fl">Üye Türü</label>
-          <select class="fs" id="reg_type">
-            <option>Fosil</option>
-            <option>Çaylak</option>
-          </select></div>
-      </div>
+      '<div style="text-align:center;margin-bottom:24px">' +
+        '<h1 style="font-family:\'Playfair Display\',serif;font-size:24px;' +
+        'font-weight:700;color:#1C1C1C;margin:0 0 4px">Baraka\'ya Katıl</h1>' +
+        '<p style="font-size:13px;color:#888;margin:0">ODTÜ THBT Fosilleri · Kayıt Formu</p>' +
+      '</div>' +
 
-      <!-- THBT bilgileri -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><label class="fl">THBT Girişi</label>
-          <input class="fi" id="reg_entry" type="month"></div>
-        <div class="fg"><label class="fl">ODTÜ Mezuniyet</label>
-          <input class="fi" id="reg_grad" type="month"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div class="fg"><label class="fl">Bölüm</label>
-          <input class="fi" id="reg_dept"
-                 placeholder="Bilgisayar Müh."></div>
-        <div class="fg"><label class="fl">Şehir</label>
-          <input class="fi" id="reg_city"
-                 placeholder="Ankara"></div>
-      </div>
+      '<div id="regMsg" style="display:none;padding:10px 14px;border-radius:10px;' +
+      'font-size:13px;margin-bottom:14px"></div>' +
 
-      <button onclick="doRegister()"
-        style="width:100%;background:#C0392B;color:white;border:none;
-               padding:13px;border-radius:12px;font-size:14px;font-weight:700;
-               cursor:pointer;font-family:'Nunito',sans-serif;margin-top:4px">
-        Kayıt Ol — Onay Bekleyeceğim
-      </button>
-      <p style="text-align:center;font-size:12px;color:#888;margin-top:14px">
-        Kaydınız Ağa veya Maraba onayından sonra aktif olur.
-      </p>
-      <p style="text-align:center;margin-top:10px">
-        <span onclick="showLoginScreen()" style="font-size:12px;color:#C0392B;
-              cursor:pointer;font-weight:700">← Giriş ekranına dön</span>
-      </p>
-    </div>
-  </div>`;
+      /* Ad Soyad */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        '<div>' + field('Ad', textInput('reg_first','Adınız')) + '</div>' +
+        '<div>' + field('Soyad', textInput('reg_last','Soyadınız')) + '</div>' +
+      '</div>' +
+
+      /* E-posta ve Şifre */
+      field('E-posta', textInput('reg_email','ornek@metu.edu.tr','email')) +
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        '<div>' + field('Şifre', textInput('reg_pass','En az 6 karakter','password')) + '</div>' +
+        '<div>' + field('Üye Türü',
+          '<select id="reg_type" style="width:100%;border:1.5px solid #EDE8DF;' +
+          'border-radius:10px;padding:11px 14px;font-size:14px;' +
+          'font-family:\'Nunito\',sans-serif;outline:none;box-sizing:border-box;' +
+          'background:#FBF8F3">' +
+          '<option>Fosil</option><option>Çaylak</option></select>') +
+        '</div>' +
+      '</div>' +
+
+      /* THBT ve ODTÜ Yılları */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        '<div>' + field('THBT Giriş Yılı', buildDD('reg_entry','Yıl seçin...', THBT_YEARS)) + '</div>' +
+        '<div>' + field('ODTÜ Mezuniyet', buildDD('reg_grad','Yıl seçin...', ODTU_YEARS)) + '</div>' +
+      '</div>' +
+
+      /* Bölüm */
+      field('ODTÜ Bölümü', buildDD('reg_dept','Bölüm arayın...', ODTU_DEPTS)) +
+
+      /* Ülke ve Şehir */
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px">' +
+        '<div>' + field('Ülke',
+          '<div style="position:relative" id="dd_wrap_reg_country">' +
+            '<input id="dd_input_reg_country" autocomplete="off" placeholder="Ülke seçin..." ' +
+            'oninput="ddFilter(\'reg_country\',this.value)" ' +
+            'onfocus="ddOpen(\'reg_country\')" ' +
+            'onblur="setTimeout(function(){ddClose(\'reg_country\');refreshCityDD()},200)" ' +
+            'style="width:100%;border:1.5px solid #EDE8DF;border-radius:10px;padding:11px 14px;' +
+            'font-size:14px;font-family:\'Nunito\',sans-serif;outline:none;box-sizing:border-box;' +
+            'background:#FBF8F3;cursor:pointer" readonly>' +
+            '<div id="dd_list_reg_country" style="display:none;position:absolute;top:100%;left:0;' +
+            'right:0;z-index:999;background:white;border:1.5px solid #EDE8DF;border-radius:10px;' +
+            'max-height:200px;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.12);margin-top:4px">' +
+            COUNTRIES.map(function(c) {
+              return '<div onclick="ddSelect(\'reg_country\',\'' + c + '\',\'' + c + '\');' +
+                'refreshCityDD()" ' +
+                'style="padding:10px 14px;font-size:13px;cursor:pointer;border-bottom:1px solid #f5f5f5" ' +
+                'onmouseenter="this.style.background=\'#FBF8F3\'" ' +
+                'onmouseleave="this.style.background=\'white\'">' + c + '</div>';
+            }).join('') +
+            '</div>' +
+            '<input type="hidden" id="dd_val_reg_country" value="Türkiye">' +
+          '</div>') +
+        '</div>' +
+        '<div id="city_dd_wrap">' + field('Şehir', buildDD('reg_city','Şehir seçin...', TR_CITIES)) + '</div>' +
+      '</div>' +
+
+      '<button onclick="doRegister()" style="width:100%;background:#C0392B;color:white;' +
+      'border:none;padding:13px;border-radius:12px;font-size:15px;font-weight:700;' +
+      'cursor:pointer;font-family:\'Nunito\',sans-serif;margin-top:4px">' +
+      'Kayıt Ol — Onay Bekleyeceğim</button>' +
+
+      '<p style="font-size:12px;color:#888;text-align:center;margin-top:12px;margin-bottom:0">' +
+      'Kaydınız Ağa veya Maraba onayından sonra aktif olur.</p>' +
+
+      '<p style="text-align:center;margin-top:10px;margin-bottom:0">' +
+      '<span onclick="showLoginScreen()" style="font-size:13px;color:#C0392B;' +
+      'cursor:pointer;font-weight:700">← Giriş ekranına dön</span></p>' +
+
+    '</div></div></div>';
+
+  /* Türkiye varsayılan seç */
+  setTimeout(function() {
+    var inp = document.getElementById('dd_input_reg_country');
+    if (inp) inp.value = 'Türkiye';
+  }, 100);
+}
+
+function refreshCityDD() {
+  var wrap = document.getElementById('city_dd_wrap');
+  if (!wrap) return;
+  var cities = getCities();
+  wrap.innerHTML = '<div style="margin-bottom:14px"><label style="font-size:11px;font-weight:700;' +
+    'color:#888;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">' +
+    'Şehir</label>' + buildDD('reg_city','Şehir seçin...', cities) + '</div>';
 }
 
 async function doRegister() {
@@ -2748,10 +2920,11 @@ async function doRegister() {
   var email = (document.getElementById('reg_email').value || '').trim();
   var pass  = document.getElementById('reg_pass').value;
   var type  = document.getElementById('reg_type').value;
-  var entry = document.getElementById('reg_entry').value;
-  var grad  = document.getElementById('reg_grad').value;
-  var dept  = (document.getElementById('reg_dept').value || '').trim();
-  var city  = (document.getElementById('reg_city').value || '').trim();
+  var entry = ddGet('reg_entry');
+  var grad  = ddGet('reg_grad');
+  var dept  = ddGet('reg_dept');
+  var city  = ddGet('reg_city');
+  var country = ddGet('reg_country') || 'Türkiye';
   var msg   = document.getElementById('regMsg');
 
   function showMsg(text, ok) {
@@ -2792,7 +2965,7 @@ async function doRegister() {
     odtu_grad: grad || null,
     dept: dept || null,
     city: city || null,
-    country: 'Türkiye',
+    country: country || null,
     status: 'pending',
     app_role: 'member'
   });
